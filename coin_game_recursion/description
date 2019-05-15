@@ -1,0 +1,6 @@
+Two players (0 and 1) are playing a game. Player 0 starts first. There are n coins on the table; each
+player can only pick 1, 2 or 4 coins from the table when it is his turn. Note that a player can never
+pick more coins than there are on the table. Last person to pick all the coins remaining on the table wins.
+Each player is rational and can compute all possible moves the other player might make.
+
+For a given number of coins, find out which player wins and in how many ways.
