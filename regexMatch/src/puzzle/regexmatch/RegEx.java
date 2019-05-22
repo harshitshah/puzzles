@@ -31,7 +31,14 @@ public class RegEx
 
     public static boolean isMatch(String s, String p)
     {
-
+        if (p.length() == 0 )
+        {
+            if (s.length() == 0)
+            {
+                return true;
+            }
+            return false;
+        }
         char[] input = s.toCharArray();
         printInput(input);
         char[] pattern = p.toCharArray();
@@ -46,18 +53,19 @@ public class RegEx
         int patternLength = pattern.length;
         while (true)
         {
-            if (curPos == patternLength)
-            {
-                System.out.println("Setting " + (stateCount-1) + " as final state");
-                curState.setFinalStatus(true);
-                break;
-            }
-
             if (curPos < patternLength-1 && pattern[curPos+1] == '*')
             {
+                System.out.println("Adding edge: from " + (stateCount-1) + " to " + stateCount + " on " + "_");
+                State newState = new State(stateCount++);
+                curState.addEdge('_', newState);
                 System.out.println("Adding edge: from " + (stateCount-1) + " to itself on " + pattern[curPos]);
-                curState.addEdge(pattern[curPos], curState);
+                newState.addEdge(pattern[curPos], newState);
+                curState = newState;
                 curPos += 2;
+                if (curPos == patternLength)
+                {
+                    break;
+                }
                 continue;
             }
 
@@ -66,24 +74,33 @@ public class RegEx
             curState.addEdge(pattern[curPos], newState);
             curState = newState;
             curPos++;
+            if (curPos == patternLength)
+            {
+                break;
+            }
+
         }
+        System.out.println("Setting " + (stateCount-1) + " as final state");
+        curState.setFinalStatus(true);
         System.out.println("Num states: " + stateCount);
 
         //match input
-        List<State> states = new ArrayList<>(1);
+        Set<State> states = new HashSet<>(1);
         states.add(start);
+        states = State.doEpsilonTransitions(states);
         curPos = 0;
         for (char c : input)
         {
             System.out.println("Matching character " + c + " at position " + curPos);
-            List<State> newStates = new ArrayList<>();
+            Set<State> newStates = new HashSet<>();
             for (State st: states)
             {
-                List<State> n = st.traverse(c);
+                Set<State> n = st.traverse(c);
                 if (n != null)
                 {
                     for (State nst: n)
                     {
+                        System.out.println("adding target state: " + nst.getName());
                         newStates.add(nst);
                     }
                 }

@@ -1,14 +1,11 @@
 package puzzle.regexmatch;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class State
 {
 		private int name;
-		private Map<Character, State> transitions;
+		private Map<Character, Set<State>> transitions;
 		private boolean isFinal;
 
 		State(int name)
@@ -18,37 +15,90 @@ public class State
 			transitions = new HashMap<>();
 		}
 
+
+		public boolean equals(State s)
+		{
+			if (s == null)
+			{
+				return false;
+			}
+			return s.getName() == name;
+		}
+
 		void setFinalStatus(boolean isFinal)
 		{
 			this.isFinal = isFinal;
 		}
 
-		List<State> traverse(Character c)
+		Set<State> traverse(Character c)
 		{
-			List<State> states = null;
+			Set<State> states = null;
 			if (transitions.containsKey(c))
 			{
-				states = new ArrayList<>(1);
-				states.add(transitions.get(c));
+				states = new HashSet<>(1);
+				states.addAll(transitions.get(c));
 			}
 			if (transitions.containsKey('.'))
 			{
 				if (states == null)
 				{
-					states = new ArrayList<>(1);
+					states = new HashSet<>(1);
 				}
-				states.add(transitions.get('.'));
+				states.addAll(transitions.get('.'));
 			}
-			return states;
+
+			return doEpsilonTransitions(states);
 		}
 
-		void addEdge(Character c, State s)
+	public static Set<State> doEpsilonTransitions(Set<State> states)
+	{
+		if (states == null || states.size() == 0)
 		{
-			transitions.put(c, s);
+			return null;
+		}
+
+		Set<State> st = new HashSet<>();
+		for (State s: states)
+		{
+			doEpsilonTransitionsRecursive(s, st);
+		}
+		return st;
+	}
+
+	private static void doEpsilonTransitionsRecursive(State s, Set<State> st)
+	{
+		st.add(s);
+		if (s.transitions.containsKey('_'))
+		{
+			for (State t: s.transitions.get('_'))
+			{
+				doEpsilonTransitionsRecursive(t, st);
+			}
+		}
+	}
+
+	void addEdge(Character c, State s)
+		{
+
+			if (transitions.containsKey(c))
+			{
+				transitions.get(c).add(s);
+			}
+			else
+			{
+				Set<State> st = new HashSet<>(1);
+				st.add(s);
+				transitions.put(c,st);
+			}
 		}
 
 		boolean isFinal()
 		{
 			return isFinal;
 		}
+
+	public int getName()
+	{
+		return name;
+	}
 }
