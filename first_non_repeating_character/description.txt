@@ -1,0 +1,4 @@
+You are given a string (of letters). You have to find the first non-repeating character
+in the input string.
+
+For example, if the input string is "aabcb", then 'c' is the first non-repeating character.
